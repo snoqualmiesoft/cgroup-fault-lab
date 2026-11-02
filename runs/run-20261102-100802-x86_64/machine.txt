@@ -1,0 +1,28 @@
+os:       Ubuntu 24.04.5 LTS, kernel 7.0.0-1017-azure
+cpus:     4 x AMD EPYC 7763 64-Core Processor (x86_64)
+memory:   15 GiB
+incus:    6.0.0
+commit:   de8bebb
+settings: CLIENTS=1 DURATION=20 WORK=60000 FAULT_CPU_LIMIT=50ms/100ms FAULT_NETEM='delay 40ms'
+
+== Container
+  NAME   STATE          IPV4         
+  lab   RUNNING  10.123.0.10 (eth0)  
+
+== Limits: what Incus was told / what the kernel enforces (/sys/fs/cgroup/lxc.payload.lab)
+  CPU quota   limits.cpu.allowance=200ms/100ms   cpu.max: 200000 100000
+  CPU set     limits.cpu=   cpuset.cpus.effective: 0-3
+  memory      limits.memory=1GiB   memory.max: 1073741824, memory.current: 37666816
+
+== Network
+  container side (inside its network namespace):
+    eth0@if9         UP             10.123.0.10/24 metric 100 fe80::216:3eff:fef3:e658/64 
+    eth0 mtu 1500
+    route: default via 10.123.0.1 dev eth0 proto dhcp src 10.123.0.10 metric 100 
+    route: 10.123.0.0/24 dev eth0 proto kernel scope link src 10.123.0.10 metric 100 
+    route: 10.123.0.1 dev eth0 proto dhcp scope link src 10.123.0.10 metric 100 
+  host side:
+    veth99631fb4@if8 UP             f2:83:16:c3:0c:d1 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+    veth99631fb4 mtu 1500 master labbr0 
+    labbr0           UP             10.123.0.1/24 
+    qdisc: qdisc noqueue 0: root refcnt 2 

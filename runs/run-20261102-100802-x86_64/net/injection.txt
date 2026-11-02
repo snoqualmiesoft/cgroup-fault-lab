@@ -1,0 +1,3 @@
+tc qdisc replace dev veth99631fb4 root netem delay 40ms
+before: qdisc noqueue 0: root refcnt 2 
+after:  qdisc netem 8001: root refcnt 5 limit 1000 delay 40ms
