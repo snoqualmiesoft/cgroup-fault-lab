@@ -1,0 +1,61 @@
+# Runs `make all` on fresh GitHub-hosted Ubuntu 24.04 VMs (x86 and Arm) after every push.
+# Results: downloadable from the run page, and copied to the `results` branch (runs/<name>/).
+name: lab
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "sample-reports/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  lab:
+    strategy:
+      fail-fast: false
+      max-parallel: 1        # one at a time, so the two pushes to the results branch never clash
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run the lab
+        id: lab
+        run: |
+          set +e
+          make all
+          echo "rc=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-${{ matrix.runner }}-${{ github.run_number }}
+          path: reports/
+
+      - name: Copy results to the results branch
+        if: always()
+        run: |
+          run=$(ls -d reports/run-* 2>/dev/null | tail -1)
+          [ -n "$run" ] || exit 0
+          name="$(basename "$run")-$(uname -m)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch --depth=1 origin results 2>/dev/null; then
+            git worktree add -B results /tmp/results FETCH_HEAD
+          else
+            git worktree add --detach /tmp/results && git -C /tmp/results switch --orphan results
+          fi
+          mkdir -p /tmp/results/runs && cp -r "$run" "/tmp/results/runs/$name"
+          echo "$name" > /tmp/results/LATEST
+          cd /tmp/results && git add -A
+          git commit -q -m "results: $name (exit ${{ steps.lab.outputs.rc }})"
+          git push -q origin HEAD:results
+
+      - name: Fail if the lab failed
+        if: steps.lab.outputs.rc != '0'
+        run: exit 1

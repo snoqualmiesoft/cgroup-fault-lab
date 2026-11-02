@@ -1,0 +1,387 @@
+
+[00:18:25] == Preflight
+Preflight: kernel 7.0.0-1019, 20 CPUs
+  PASS  Ubuntu 24.04 (the tested version)
+  PASS  not inside a container
+  PASS  cgroup v2
+  PASS  cpu, cpuset and memory cgroup controllers
+  PASS  netem module (setup installs it if missing)
+  PASS  at least 2 CPUs
+  PASS  at least 2 GiB RAM
+  PASS  at least 3 GiB free disk under /var/lib
+  PASS  image server reachable
+Preflight: OK
+
+[00:18:26] == Unit tests
+.....................
+----------------------------------------------------------------------
+Ran 21 tests in 1.936s
+
+OK
+
+[00:18:28] == Smoke test (setup, reachability, report, cleanup)
+Smoke test (logs in /home/user/cgroup-fault-lab/reports/run-20261102-001825/smoke)
+  PASS  setup builds the lab
+  PASS  container is running
+  PASS  app reachable from the host
+  PASS  /work returns cpu_ms
+  PASS  /work rejects bad input
+  PASS  load generator reports p99
+  PASS  report is created (JSON + text)
+  PASS  report keeps a 3 s runtime limit
+  PASS  no netem on the lab link
+  PASS  cleanup deletes the container
+Smoke: all passed
+
+[00:18:38] == Setup
+[00:18:38] 1/5 Install packages (only the missing ones, so a second setup works offline)
+[00:18:38] 2/5 Incus storage (no default network: the lab uses its own bridge)
+[00:18:38] 3/5 Lab bridge labbr0 (10.123.0.1/24, NAT, no IPv6)
+[00:18:38]   net.ipv4.ip_forward before setup: 1, now: 1
+[00:18:38] 4/5 Fresh container lab: CPU 200ms/100ms, memory 1GiB, CPUs 5-9, IP 10.123.0.10
+Remapping container filesystem                                                                                             [00:18:40] 5/5 Start the app in the container
+[00:18:40]   python3 is in the image
+[00:18:42] Ready: app at http://10.123.0.10:8080, reachable from the host. Next: make baseline
+
+[00:18:42] == Machine and lab layout
+os:       Ubuntu 24.04.5 LTS, kernel 7.0.0-1019
+cpus:     20 cores (Cortex-X925 + Cortex-A725, aarch64)
+memory:   121 GiB
+incus:    6.0.0
+commit:   fa2b7e8
+settings: CLIENTS=1 DURATION=20 WORK=60000 FAULT_CPU_LIMIT=50ms/100ms FAULT_NETEM='delay 40ms'
+
+== Container
+  NAME   STATE          IPV4         
+  lab   RUNNING  10.123.0.10 (eth0)  
+
+== Limits: what Incus was told / what the kernel enforces (/sys/fs/cgroup/lxc.payload.lab)
+  CPU quota   limits.cpu.allowance=200ms/100ms   cpu.max: 200000 100000
+  CPU set     limits.cpu=5-9   cpuset.cpus.effective: 5-9
+  memory      limits.memory=1GiB   memory.max: 1073741824, memory.current: 47267840
+
+== Network
+  container side (inside its network namespace):
+    eth0@if24        UP             10.123.0.10/24 metric 100 fe80::216:3eff:fec2:ffef/64 
+    eth0 mtu 1500
+    route: default via 10.123.0.1 dev eth0 proto dhcp src 10.123.0.10 metric 100 
+    route: 10.123.0.0/24 dev eth0 proto kernel scope link src 10.123.0.10 metric 100 
+    route: 10.123.0.1 dev eth0 proto dhcp scope link src 10.123.0.10 metric 100 
+  host side:
+    vethb503361d@if23 UP             46:d4:28:f3:94:59 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+    vethb503361d mtu 1500 master labbr0 
+    labbr0           UP             10.123.0.1/24 
+    qdisc: qdisc noqueue 0: root refcnt 2 
+
+[00:18:42] == Baseline profile
+Baseline saved to /home/user/cgroup-fault-lab/reports/baseline.json:
+  kernel        7.0.0-1019
+  cgroup        v2
+  cpu_limit     kernel 200000 100000 (Incus 200ms/100ms)
+  cpuset        kernel 5-9 (Incus 5-9)
+  memory_limit  kernel 1073741824 (Incus 1GiB)
+
+[00:18:42] == Health
+HEALTHY (exit 0): all 20 checks passed
+Container lab: 20 s sample with 1 client(s), took 20.09 s of a 40 s limit
+  PASS     host.os                 Ubuntu 24.04.5 LTS, kernel 7.0.0-1019
+  PASS     host.cgroup             cgroup v2 with the cpu, cpuset and memory controllers
+  PASS     host.cpu                20 CPUs, load average 0.33 0.12 0.08 (1, 5, 15 min)
+  PASS     host.memory             72234 MiB available of 124608 MiB (58%)
+  PASS     host.disk               root filesystem 6% used, 3356.2 GiB free
+  PASS     host.kernel_log         last 10 min: 0 kernel messages at warning level or worse, 0 look like problems (oom, hung task, lockup, call trace, watchdog, I/O error)
+  PASS     container.state         lab running, first process PID 1414988, address 10.123.0.10, host-side link vethb503361d
+  PASS     container.cpu           cpu.max 200000 100000 (Incus allowance 200ms/100ms), cpuset 5-9 (Incus limits.cpu 5-9); 0 of 200 periods throttled (0%), 0 ms waiting
+  PASS     container.memory        memory.max 1024 MiB (Incus limits.memory 1GiB), memory.current 42 MiB (4%), 0 OOM kills in the interval
+  PASS     network.host_link       host side vethb503361d UP, MTU 1500, on bridge labbr0; in the interval 8735 packets in, 8800 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.container_link  container eth0 UP, MTU 1500; in the interval 8800 packets in, 8735 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.qdisc           vethb503361d: qdisc noqueue 0: root refcnt 2 (the default: no queue, so no qdisc counters)
+  PASS     network.tcp_retrans     TCP retransmits in the interval: host namespace net:[4026531833] +0, container namespace net:[4026532932] +0 (whole-namespace counters, evidence only)
+  PASS     network.http            http://10.123.0.10:8080/healthz answered 200 in 0.9 ms
+  PASS     app.load                4365 requests (sample count) from 1 client(s) in 20 s: 0 errors, 218.2 req/s, p50 4.5 ms, p99 5.3 ms, max 5.7 ms
+  PASS     drift.kernel            kernel: 7.0.0-1019, same as the baseline
+  PASS     drift.cgroup            cgroup: v2, same as the baseline
+  PASS     drift.cpu_limit         cpu_limit: kernel 200000 100000 (Incus 200ms/100ms), same as the baseline
+  PASS     drift.cpuset            cpuset: kernel 5-9 (Incus 5-9), same as the baseline
+  PASS     drift.memory_limit      memory_limit: kernel 1073741824 (Incus 1GiB), same as the baseline
+
+[00:19:02] == CPU fault cycle
+[00:19:02] 1/3 Baseline report: cpu.max 200000 100000
+HEALTHY (exit 0): all 20 checks passed
+Container lab: 20 s sample with 1 client(s), took 20.08 s of a 40 s limit
+  PASS     host.os                 Ubuntu 24.04.5 LTS, kernel 7.0.0-1019
+  PASS     host.cgroup             cgroup v2 with the cpu, cpuset and memory controllers
+  PASS     host.cpu                20 CPUs, load average 0.52 0.17 0.10 (1, 5, 15 min)
+  PASS     host.memory             72251 MiB available of 124608 MiB (58%)
+  PASS     host.disk               root filesystem 6% used, 3356.2 GiB free
+  PASS     host.kernel_log         last 10 min: 0 kernel messages at warning level or worse, 0 look like problems (oom, hung task, lockup, call trace, watchdog, I/O error)
+  PASS     container.state         lab running, first process PID 1414988, address 10.123.0.10, host-side link vethb503361d
+  PASS     container.cpu           cpu.max 200000 100000 (Incus allowance 200ms/100ms), cpuset 5-9 (Incus limits.cpu 5-9); 0 of 200 periods throttled (0%), 0 ms waiting
+  PASS     container.memory        memory.max 1024 MiB (Incus limits.memory 1GiB), memory.current 41 MiB (4%), 0 OOM kills in the interval
+  PASS     network.host_link       host side vethb503361d UP, MTU 1500, on bridge labbr0; in the interval 8492 packets in, 8558 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.container_link  container eth0 UP, MTU 1500; in the interval 8558 packets in, 8492 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.qdisc           vethb503361d: qdisc noqueue 0: root refcnt 2 (the default: no queue, so no qdisc counters)
+  PASS     network.tcp_retrans     TCP retransmits in the interval: host namespace net:[4026531833] +0, container namespace net:[4026532932] +0 (whole-namespace counters, evidence only)
+  PASS     network.http            http://10.123.0.10:8080/healthz answered 200 in 1.3 ms
+  PASS     app.load                4244 requests (sample count) from 1 client(s) in 20 s: 0 errors, 212.2 req/s, p50 4.6 ms, p99 5.3 ms, max 5.6 ms
+  PASS     drift.kernel            kernel: 7.0.0-1019, same as the baseline
+  PASS     drift.cgroup            cgroup: v2, same as the baseline
+  PASS     drift.cpu_limit         cpu_limit: kernel 200000 100000 (Incus 200ms/100ms), same as the baseline
+  PASS     drift.cpuset            cpuset: kernel 5-9 (Incus 5-9), same as the baseline
+  PASS     drift.memory_limit      memory_limit: kernel 1073741824 (Incus 1GiB), same as the baseline
+[00:19:22] Inject: incus config set lab limits.cpu.allowance 50ms/100ms
+[00:19:22] 2/3 Report under fault: cpu.max 50000 100000
+UNHEALTHY (exit 2): container.cpu FAIL: cpu.max 50000 100000 (Incus allowance 50ms/100ms), cpuset 5-9 (Incus limits.cpu 5-9); 200 of 201 periods throttled (100%), 8168 ms waiting
+Container lab: 20 s sample with 1 client(s), took 20.09 s of a 40 s limit
+  PASS     host.os                 Ubuntu 24.04.5 LTS, kernel 7.0.0-1019
+  PASS     host.cgroup             cgroup v2 with the cpu, cpuset and memory controllers
+  PASS     host.cpu                20 CPUs, load average 0.38 0.16 0.09 (1, 5, 15 min)
+  PASS     host.memory             72292 MiB available of 124608 MiB (58%)
+  PASS     host.disk               root filesystem 6% used, 3356.2 GiB free
+  PASS     host.kernel_log         last 10 min: 0 kernel messages at warning level or worse, 0 look like problems (oom, hung task, lockup, call trace, watchdog, I/O error)
+  PASS     container.state         lab running, first process PID 1414988, address 10.123.0.10, host-side link vethb503361d
+  FAIL     container.cpu           cpu.max 50000 100000 (Incus allowance 50ms/100ms), cpuset 5-9 (Incus limits.cpu 5-9); 200 of 201 periods throttled (100%), 8168 ms waiting
+  PASS     container.memory        memory.max 1024 MiB (Incus limits.memory 1GiB), memory.current 41 MiB (4%), 0 OOM kills in the interval
+  PASS     network.host_link       host side vethb503361d UP, MTU 1500, on bridge labbr0; in the interval 5330 packets in, 4998 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.container_link  container eth0 UP, MTU 1500; in the interval 4998 packets in, 5330 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.qdisc           vethb503361d: qdisc noqueue 0: root refcnt 2 (the default: no queue, so no qdisc counters)
+  PASS     network.tcp_retrans     TCP retransmits in the interval: host namespace net:[4026531833] +0, container namespace net:[4026532932] +0 (whole-namespace counters, evidence only)
+  PASS     network.http            http://10.123.0.10:8080/healthz answered 200 in 0.7 ms
+  PASS     app.load                2464 requests (sample count) from 1 client(s) in 20 s: 0 errors, 123.2 req/s, p50 4.8 ms, p99 47.0 ms, max 51.2 ms
+  PASS     drift.kernel            kernel: 7.0.0-1019, same as the baseline
+  PASS     drift.cgroup            cgroup: v2, same as the baseline
+  WARN     drift.cpu_limit         cpu_limit changed: kernel 200000 100000 (Incus 200ms/100ms) -> kernel 50000 100000 (Incus 50ms/100ms)
+  PASS     drift.cpuset            cpuset: kernel 5-9 (Incus 5-9), same as the baseline
+  PASS     drift.memory_limit      memory_limit: kernel 1073741824 (Incus 1GiB), same as the baseline
+[00:19:42] Recover: incus config set lab limits.cpu.allowance 200ms/100ms
+[00:19:42] 3/3 Recovery report: cpu.max 200000 100000
+HEALTHY (exit 0): all 20 checks passed
+Container lab: 20 s sample with 1 client(s), took 20.09 s of a 40 s limit
+  PASS     host.os                 Ubuntu 24.04.5 LTS, kernel 7.0.0-1019
+  PASS     host.cgroup             cgroup v2 with the cpu, cpuset and memory controllers
+  PASS     host.cpu                20 CPUs, load average 0.42 0.19 0.10 (1, 5, 15 min)
+  PASS     host.memory             72266 MiB available of 124608 MiB (58%)
+  PASS     host.disk               root filesystem 6% used, 3356.2 GiB free
+  PASS     host.kernel_log         last 10 min: 0 kernel messages at warning level or worse, 0 look like problems (oom, hung task, lockup, call trace, watchdog, I/O error)
+  PASS     container.state         lab running, first process PID 1414988, address 10.123.0.10, host-side link vethb503361d
+  PASS     container.cpu           cpu.max 200000 100000 (Incus allowance 200ms/100ms), cpuset 5-9 (Incus limits.cpu 5-9); 0 of 200 periods throttled (0%), 0 ms waiting
+  PASS     container.memory        memory.max 1024 MiB (Incus limits.memory 1GiB), memory.current 40 MiB (4%), 0 OOM kills in the interval
+  PASS     network.host_link       host side vethb503361d UP, MTU 1500, on bridge labbr0; in the interval 8438 packets in, 8504 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.container_link  container eth0 UP, MTU 1500; in the interval 8504 packets in, 8438 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.qdisc           vethb503361d: qdisc noqueue 0: root refcnt 2 (the default: no queue, so no qdisc counters)
+  PASS     network.tcp_retrans     TCP retransmits in the interval: host namespace net:[4026531833] +0, container namespace net:[4026532932] +0 (whole-namespace counters, evidence only)
+  PASS     network.http            http://10.123.0.10:8080/healthz answered 200 in 0.8 ms
+  PASS     app.load                4217 requests (sample count) from 1 client(s) in 20 s: 0 errors, 210.8 req/s, p50 4.7 ms, p99 5.3 ms, max 5.6 ms
+  PASS     drift.kernel            kernel: 7.0.0-1019, same as the baseline
+  PASS     drift.cgroup            cgroup: v2, same as the baseline
+  PASS     drift.cpu_limit         cpu_limit: kernel 200000 100000 (Incus 200ms/100ms), same as the baseline
+  PASS     drift.cpuset            cpuset: kernel 5-9 (Incus 5-9), same as the baseline
+  PASS     drift.memory_limit      memory_limit: kernel 1073741824 (Incus 1GiB), same as the baseline
+# cpu: PASS
+
+Load settings, the same in all three phases: 1 client(s), 20 s, `GET http://10.123.0.10:8080/work`. Each phase is one health report (1-baseline.json/.txt, 2-fault.json/.txt, 3-recovery.json/.txt).
+
+Injected:
+
+```
+incus config set lab limits.cpu.allowance 50ms/100ms    (cpu.max now: 50000 100000)
+```
+
+## Application (measured by the load generator)
+
+| phase | requests | errors | req/s | p50 ms | p99 ms | max ms | server CPU per request ms |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| baseline | 4244 | 0 | 212.2 | 4.63 | 5.35 | 5.58 | 3.88 |
+| fault | 2464 | 0 | 123.2 | 4.83 | 47.03 | 51.24 | 3.87 |
+| recovery | 4217 | 0 | 210.8 | 4.65 | 5.34 | 5.64 | 3.89 |
+
+## Kernel counters over the same interval
+
+| phase | cpu.max | throttled periods | host link errors / drops | container link errors / drops | qdisc | qdisc drops | TCP retransmits host / container |
+|---|---|---:|---:|---:|---|---:|---:|
+| baseline | `200000 100000` | 0 of 200 | 0 / 0 | 0 / 0 | `qdisc noqueue 0: root refcnt 2` | 0 | 0 / 0 |
+| fault | `50000 100000` | 200 of 201 | 0 / 0 | 0 / 0 | `qdisc noqueue 0: root refcnt 2` | 0 | 0 / 0 |
+| recovery | `200000 100000` | 0 of 200 | 0 / 0 | 0 / 0 | `qdisc noqueue 0: root refcnt 2` | 0 | 0 / 0 |
+
+Changed under the fault: cpu.max 200000 100000 -> 50000 100000; throttled periods 0 -> 200.  
+Did not change: server CPU per request 3.88; host link errors/drops 0 / 0; container link errors/drops 0 / 0; qdisc qdisc noqueue 0: root refcnt 2; qdisc drops 0; TCP retransmits host/container 0 / 0.
+
+## Verdict
+
+- yes  the fault reached the kernel (cpu.max or qdisc differs from the baseline)
+- yes  the effect on the app is measurable: p99 5.35 -> 47.03 ms
+- yes  the health check saw it: HEALTHY -> UNHEALTHY
+- yes  the original cpu.max and qdisc are back
+- yes  health is back to the baseline result: HEALTHY
+
+## Health reports
+
+- baseline: **HEALTHY**
+- fault: **UNHEALTHY**
+  - container.cpu FAIL: cpu.max 50000 100000 (Incus allowance 50ms/100ms), cpuset 5-9 (Incus limits.cpu 5-9); 200 of 201 periods throttled (100%), 8168 ms waiting
+  - drift.cpu_limit WARN: cpu_limit changed: kernel 200000 100000 (Incus 200ms/100ms) -> kernel 50000 100000 (Incus 50ms/100ms)
+- recovery: **HEALTHY**
+
+## Interpretation
+
+_Your explanation of the numbers above._
+
+[00:20:03] == Network fault cycle
+[00:20:03] 1/3 Baseline report: qdisc noqueue 0: root refcnt 2 
+HEALTHY (exit 0): all 20 checks passed
+Container lab: 20 s sample with 1 client(s), took 20.08 s of a 40 s limit
+  PASS     host.os                 Ubuntu 24.04.5 LTS, kernel 7.0.0-1019
+  PASS     host.cgroup             cgroup v2 with the cpu, cpuset and memory controllers
+  PASS     host.cpu                20 CPUs, load average 0.51 0.22 0.12 (1, 5, 15 min)
+  PASS     host.memory             72247 MiB available of 124608 MiB (58%)
+  PASS     host.disk               root filesystem 6% used, 3356.2 GiB free
+  PASS     host.kernel_log         last 10 min: 0 kernel messages at warning level or worse, 0 look like problems (oom, hung task, lockup, call trace, watchdog, I/O error)
+  PASS     container.state         lab running, first process PID 1414988, address 10.123.0.10, host-side link vethb503361d
+  PASS     container.cpu           cpu.max 200000 100000 (Incus allowance 200ms/100ms), cpuset 5-9 (Incus limits.cpu 5-9); 0 of 200 periods throttled (0%), 0 ms waiting
+  PASS     container.memory        memory.max 1024 MiB (Incus limits.memory 1GiB), memory.current 39 MiB (4%), 0 OOM kills in the interval
+  PASS     network.host_link       host side vethb503361d UP, MTU 1500, on bridge labbr0; in the interval 8561 packets in, 8628 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.container_link  container eth0 UP, MTU 1500; in the interval 8628 packets in, 8561 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.qdisc           vethb503361d: qdisc noqueue 0: root refcnt 2 (the default: no queue, so no qdisc counters)
+  PASS     network.tcp_retrans     TCP retransmits in the interval: host namespace net:[4026531833] +0, container namespace net:[4026532932] +0 (whole-namespace counters, evidence only)
+  PASS     network.http            http://10.123.0.10:8080/healthz answered 200 in 1.5 ms
+  PASS     app.load                4279 requests (sample count) from 1 client(s) in 20 s: 0 errors, 213.9 req/s, p50 4.6 ms, p99 5.3 ms, max 5.7 ms
+  PASS     drift.kernel            kernel: 7.0.0-1019, same as the baseline
+  PASS     drift.cgroup            cgroup: v2, same as the baseline
+  PASS     drift.cpu_limit         cpu_limit: kernel 200000 100000 (Incus 200ms/100ms), same as the baseline
+  PASS     drift.cpuset            cpuset: kernel 5-9 (Incus 5-9), same as the baseline
+  PASS     drift.memory_limit      memory_limit: kernel 1073741824 (Incus 1GiB), same as the baseline
+[00:20:23] Inject: tc qdisc replace dev vethb503361d root netem delay 40ms
+[00:20:23] 2/3 Report under fault: qdisc netem 8005: root refcnt 21 limit 1000 delay 40ms
+DEGRADED (exit 1): network.qdisc WARN: vethb503361d: qdisc netem 8005: root refcnt 21 limit 1000 delay 40ms; in the interval 949 packets sent, 0 dropped by the qdisc
+Container lab: 20 s sample with 1 client(s), took 20.18 s of a 40 s limit
+  PASS     host.os                 Ubuntu 24.04.5 LTS, kernel 7.0.0-1019
+  PASS     host.cgroup             cgroup v2 with the cpu, cpuset and memory controllers
+  PASS     host.cpu                20 CPUs, load average 0.36 0.21 0.11 (1, 5, 15 min)
+  PASS     host.memory             72251 MiB available of 124608 MiB (58%)
+  PASS     host.disk               root filesystem 6% used, 3356.2 GiB free
+  PASS     host.kernel_log         last 10 min: 0 kernel messages at warning level or worse, 0 look like problems (oom, hung task, lockup, call trace, watchdog, I/O error)
+  PASS     container.state         lab running, first process PID 1414988, address 10.123.0.10, host-side link vethb503361d
+  PASS     container.cpu           cpu.max 200000 100000 (Incus allowance 200ms/100ms), cpuset 5-9 (Incus limits.cpu 5-9); 0 of 200 periods throttled (0%), 0 ms waiting
+  PASS     container.memory        memory.max 1024 MiB (Incus limits.memory 1GiB), memory.current 41 MiB (4%), 0 OOM kills in the interval
+  PASS     network.host_link       host side vethb503361d UP, MTU 1500, on bridge labbr0; in the interval 884 packets in, 949 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.container_link  container eth0 UP, MTU 1500; in the interval 949 packets in, 884 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  WARN     network.qdisc           vethb503361d: qdisc netem 8005: root refcnt 21 limit 1000 delay 40ms; in the interval 949 packets sent, 0 dropped by the qdisc
+  PASS     network.tcp_retrans     TCP retransmits in the interval: host namespace net:[4026531833] +0, container namespace net:[4026532932] +0 (whole-namespace counters, evidence only)
+  PASS     network.http            http://10.123.0.10:8080/healthz answered 200 in 82.5 ms
+  PASS     app.load                441 requests (sample count) from 1 client(s) in 20 s: 0 errors, 22.1 req/s, p50 45.3 ms, p99 46.4 ms, max 86.3 ms
+  PASS     drift.kernel            kernel: 7.0.0-1019, same as the baseline
+  PASS     drift.cgroup            cgroup: v2, same as the baseline
+  PASS     drift.cpu_limit         cpu_limit: kernel 200000 100000 (Incus 200ms/100ms), same as the baseline
+  PASS     drift.cpuset            cpuset: kernel 5-9 (Incus 5-9), same as the baseline
+  PASS     drift.memory_limit      memory_limit: kernel 1073741824 (Incus 1GiB), same as the baseline
+[00:20:43] Recover: tc qdisc del dev vethb503361d root
+[00:20:43] Original qdisc is back: qdisc noqueue 0: root refcnt 2 
+[00:20:43] 3/3 Recovery report
+HEALTHY (exit 0): all 20 checks passed
+Container lab: 20 s sample with 1 client(s), took 20.08 s of a 40 s limit
+  PASS     host.os                 Ubuntu 24.04.5 LTS, kernel 7.0.0-1019
+  PASS     host.cgroup             cgroup v2 with the cpu, cpuset and memory controllers
+  PASS     host.cpu                20 CPUs, load average 0.55 0.26 0.13 (1, 5, 15 min)
+  PASS     host.memory             72233 MiB available of 124608 MiB (58%)
+  PASS     host.disk               root filesystem 6% used, 3356.2 GiB free
+  PASS     host.kernel_log         last 10 min: 0 kernel messages at warning level or worse, 0 look like problems (oom, hung task, lockup, call trace, watchdog, I/O error)
+  PASS     container.state         lab running, first process PID 1414988, address 10.123.0.10, host-side link vethb503361d
+  PASS     container.cpu           cpu.max 200000 100000 (Incus allowance 200ms/100ms), cpuset 5-9 (Incus limits.cpu 5-9); 0 of 200 periods throttled (0%), 0 ms waiting
+  PASS     container.memory        memory.max 1024 MiB (Incus limits.memory 1GiB), memory.current 41 MiB (4%), 0 OOM kills in the interval
+  PASS     network.host_link       host side vethb503361d UP, MTU 1500, on bridge labbr0; in the interval 8382 packets in, 8449 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.container_link  container eth0 UP, MTU 1500; in the interval 8449 packets in, 8382 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.qdisc           vethb503361d: qdisc noqueue 0: root refcnt 2 (the default: no queue, so no qdisc counters)
+  PASS     network.tcp_retrans     TCP retransmits in the interval: host namespace net:[4026531833] +1, container namespace net:[4026532932] +1 (whole-namespace counters, evidence only)
+  PASS     network.http            http://10.123.0.10:8080/healthz answered 200 in 0.8 ms
+  PASS     app.load                4188 requests (sample count) from 1 client(s) in 20 s: 0 errors, 209.4 req/s, p50 4.7 ms, p99 5.4 ms, max 5.7 ms
+  PASS     drift.kernel            kernel: 7.0.0-1019, same as the baseline
+  PASS     drift.cgroup            cgroup: v2, same as the baseline
+  PASS     drift.cpu_limit         cpu_limit: kernel 200000 100000 (Incus 200ms/100ms), same as the baseline
+  PASS     drift.cpuset            cpuset: kernel 5-9 (Incus 5-9), same as the baseline
+  PASS     drift.memory_limit      memory_limit: kernel 1073741824 (Incus 1GiB), same as the baseline
+# net: PASS
+
+Load settings, the same in all three phases: 1 client(s), 20 s, `GET http://10.123.0.10:8080/work`. Each phase is one health report (1-baseline.json/.txt, 2-fault.json/.txt, 3-recovery.json/.txt).
+
+Injected:
+
+```
+tc qdisc replace dev vethb503361d root netem delay 40ms
+before: qdisc noqueue 0: root refcnt 2 
+after:  qdisc netem 8005: root refcnt 21 limit 1000 delay 40ms
+```
+
+## Application (measured by the load generator)
+
+| phase | requests | errors | req/s | p50 ms | p99 ms | max ms | server CPU per request ms |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| baseline | 4279 | 0 | 213.9 | 4.62 | 5.35 | 5.74 | 3.87 |
+| fault | 441 | 0 | 22.1 | 45.29 | 46.37 | 86.3 | 3.87 |
+| recovery | 4188 | 0 | 209.4 | 4.72 | 5.4 | 5.65 | 3.96 |
+
+## Kernel counters over the same interval
+
+| phase | cpu.max | throttled periods | host link errors / drops | container link errors / drops | qdisc | qdisc drops | TCP retransmits host / container |
+|---|---|---:|---:|---:|---|---:|---:|
+| baseline | `200000 100000` | 0 of 200 | 0 / 0 | 0 / 0 | `qdisc noqueue 0: root refcnt 2` | 0 | 0 / 0 |
+| fault | `200000 100000` | 0 of 200 | 0 / 0 | 0 / 0 | `qdisc netem 8005: root refcnt 21 limit 1000 delay 40ms` | 0 | 0 / 0 |
+| recovery | `200000 100000` | 0 of 200 | 0 / 0 | 0 / 0 | `qdisc noqueue 0: root refcnt 2` | 0 | 1 / 1 |
+
+Changed under the fault: qdisc qdisc noqueue 0: root refcnt 2 -> qdisc netem 8005: root refcnt 21 limit 1000 delay 40ms.  
+Did not change: cpu.max 200000 100000; throttled periods 0; server CPU per request 3.87; host link errors/drops 0 / 0; container link errors/drops 0 / 0; qdisc drops 0; TCP retransmits host/container 0 / 0.
+
+## Verdict
+
+- yes  the fault reached the kernel (cpu.max or qdisc differs from the baseline)
+- yes  the effect on the app is measurable: p99 5.35 -> 46.37 ms
+- yes  the health check saw it: HEALTHY -> DEGRADED
+- yes  the original cpu.max and qdisc are back
+- yes  health is back to the baseline result: HEALTHY
+
+## Health reports
+
+- baseline: **HEALTHY**
+- fault: **DEGRADED**
+  - network.qdisc WARN: vethb503361d: qdisc netem 8005: root refcnt 21 limit 1000 delay 40ms; in the interval 949 packets sent, 0 dropped by the qdisc
+- recovery: **HEALTHY**
+
+## Interpretation
+
+_Your explanation of the numbers above._
+
+[00:21:03] == Recovery after an interrupted fault run
+[00:21:03] Start bin/fault-cpu.sh; kill -9 it as soon as the fault is in the kernel
+[00:21:24]   after kill -9: cpu.max 50000 100000, qdisc noqueue 0: root refcnt 2 
+[00:21:24] Restored: cpu.max 200000 100000, memory.max 1073741824, qdisc noqueue 0: root refcnt 2 
+[00:21:24]   PASS: bin/restore.sh removed the cpu fault left by the interrupted run
+[00:21:24] Start bin/fault-net.sh; kill -9 it as soon as the fault is in the kernel
+[00:21:44]   after kill -9: cpu.max 200000 100000, qdisc netem 8006: root refcnt 21 limit 1000 delay 40ms
+[00:21:45] Restored: cpu.max 200000 100000, memory.max 1073741824, qdisc noqueue 0: root refcnt 2 
+[00:21:45]   PASS: bin/restore.sh removed the net fault left by the interrupted run
+[00:21:45] Recovery after interrupted runs: PASS
+
+[00:21:45] == Health
+HEALTHY (exit 0): all 20 checks passed
+Container lab: 20 s sample with 1 client(s), took 20.08 s of a 40 s limit
+  PASS     host.os                 Ubuntu 24.04.5 LTS, kernel 7.0.0-1019
+  PASS     host.cgroup             cgroup v2 with the cpu, cpuset and memory controllers
+  PASS     host.cpu                20 CPUs, load average 1.28 0.53 0.24 (1, 5, 15 min)
+  PASS     host.memory             72240 MiB available of 124608 MiB (58%)
+  PASS     host.disk               root filesystem 6% used, 3356.2 GiB free
+  PASS     host.kernel_log         last 10 min: 0 kernel messages at warning level or worse, 0 look like problems (oom, hung task, lockup, call trace, watchdog, I/O error)
+  PASS     container.state         lab running, first process PID 1414988, address 10.123.0.10, host-side link vethb503361d
+  PASS     container.cpu           cpu.max 200000 100000 (Incus allowance 200ms/100ms), cpuset 5-9 (Incus limits.cpu 5-9); 0 of 200 periods throttled (0%), 0 ms waiting
+  PASS     container.memory        memory.max 1024 MiB (Incus limits.memory 1GiB), memory.current 40 MiB (4%), 0 OOM kills in the interval
+  PASS     network.host_link       host side vethb503361d UP, MTU 1500, on bridge labbr0; in the interval 8841 packets in, 8908 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.container_link  container eth0 UP, MTU 1500; in the interval 8908 packets in, 8841 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.qdisc           vethb503361d: qdisc noqueue 0: root refcnt 2 (the default: no queue, so no qdisc counters)
+  PASS     network.tcp_retrans     TCP retransmits in the interval: host namespace net:[4026531833] +0, container namespace net:[4026532932] +0 (whole-namespace counters, evidence only)
+  PASS     network.http            http://10.123.0.10:8080/healthz answered 200 in 0.9 ms
+  PASS     app.load                4419 requests (sample count) from 1 client(s) in 20 s: 0 errors, 220.9 req/s, p50 4.5 ms, p99 5.2 ms, max 5.5 ms
+  PASS     drift.kernel            kernel: 7.0.0-1019, same as the baseline
+  PASS     drift.cgroup            cgroup: v2, same as the baseline
+  PASS     drift.cpu_limit         cpu_limit: kernel 200000 100000 (Incus 200ms/100ms), same as the baseline
+  PASS     drift.cpuset            cpuset: kernel 5-9 (Incus 5-9), same as the baseline
+  PASS     drift.memory_limit      memory_limit: kernel 1073741824 (Incus 1GiB), same as the baseline
+
+[00:22:05] == Done. Results: /home/user/cgroup-fault-lab/reports/run-20261102-001825

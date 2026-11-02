@@ -1,0 +1,12 @@
+[Unit]
+Description=Lab app (CPU-bound HTTP endpoint)
+After=network-online.target
+
+[Service]
+EnvironmentFile=/etc/default/lab-app
+ExecStart=/usr/bin/python3 /opt/lab-app/server.py
+User=nobody
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

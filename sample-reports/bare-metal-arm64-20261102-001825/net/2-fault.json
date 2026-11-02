@@ -1,0 +1,329 @@
+{
+  "status": "DEGRADED",
+  "exit_code": 1,
+  "reason": "network.qdisc WARN: vethb503361d: qdisc netem 8005: root refcnt 21 limit 1000 delay 40ms; in the interval 949 packets sent, 0 dropped by the qdisc",
+  "time": "2026-11-02 00:20:43 -0800",
+  "container": "lab",
+  "load_settings": {
+    "url": "http://10.123.0.10:8080/work",
+    "clients": 1,
+    "duration_s": 20.0
+  },
+  "interval_s": 20.0,
+  "timeout_s": 40.0,
+  "runtime_s": 20.18,
+  "checks": [
+    {
+      "check": "host.os",
+      "status": "PASS",
+      "message": "Ubuntu 24.04.5 LTS, kernel 7.0.0-1019",
+      "data": null
+    },
+    {
+      "check": "host.cgroup",
+      "status": "PASS",
+      "message": "cgroup v2 with the cpu, cpuset and memory controllers",
+      "data": null
+    },
+    {
+      "check": "host.cpu",
+      "status": "PASS",
+      "message": "20 CPUs, load average 0.36 0.21 0.11 (1, 5, 15 min)",
+      "data": {
+        "cpus": 20,
+        "load1": 0.36376953125
+      }
+    },
+    {
+      "check": "host.memory",
+      "status": "PASS",
+      "message": "72251 MiB available of 124608 MiB (58%)",
+      "data": null
+    },
+    {
+      "check": "host.disk",
+      "status": "PASS",
+      "message": "root filesystem 6% used, 3356.2 GiB free",
+      "data": null
+    },
+    {
+      "check": "host.kernel_log",
+      "status": "PASS",
+      "message": "last 10 min: 0 kernel messages at warning level or worse, 0 look like problems (oom, hung task, lockup, call trace, watchdog, I/O error)",
+      "data": {
+        "warnings": 0
+      }
+    },
+    {
+      "check": "container.state",
+      "status": "PASS",
+      "message": "lab running, first process PID 1414988, address 10.123.0.10, host-side link vethb503361d",
+      "data": {
+        "status": "Running",
+        "pid": 1414988,
+        "ip": "10.123.0.10",
+        "veth": "vethb503361d"
+      }
+    },
+    {
+      "check": "container.cpu",
+      "status": "PASS",
+      "message": "cpu.max 200000 100000 (Incus allowance 200ms/100ms), cpuset 5-9 (Incus limits.cpu 5-9); 0 of 200 periods throttled (0%), 0 ms waiting",
+      "data": {
+        "cpu_max": "200000 100000",
+        "cpuset": "5-9",
+        "incus_allowance": "200ms/100ms",
+        "incus_cpus": "5-9",
+        "periods": 200,
+        "throttled": 0,
+        "throttled_ms": 0.0,
+        "cpu_stat_start": {
+          "usage_usec": 79302840,
+          "user_usec": 78013655,
+          "system_usec": 1289185,
+          "nice_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nr_periods": 1023,
+          "nr_throttled": 201,
+          "throttled_usec": 8193520,
+          "nr_bursts": 0,
+          "burst_usec": 0
+        },
+        "cpu_stat_end": {
+          "usage_usec": 81143603,
+          "user_usec": 79810485,
+          "system_usec": 1333118,
+          "nice_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nr_periods": 1223,
+          "nr_throttled": 201,
+          "throttled_usec": 8193520,
+          "nr_bursts": 0,
+          "burst_usec": 0
+        }
+      }
+    },
+    {
+      "check": "container.memory",
+      "status": "PASS",
+      "message": "memory.max 1024 MiB (Incus limits.memory 1GiB), memory.current 41 MiB (4%), 0 OOM kills in the interval",
+      "data": null
+    },
+    {
+      "check": "network.host_link",
+      "status": "PASS",
+      "message": "host side vethb503361d UP, MTU 1500, on bridge labbr0; in the interval 884 packets in, 949 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)",
+      "data": {
+        "rx_packets": 884,
+        "tx_packets": 949,
+        "rx_errors": 0,
+        "tx_errors": 0,
+        "rx_dropped": 0,
+        "tx_dropped": 0,
+        "state": "UP",
+        "mtu": 1500,
+        "master": "labbr0"
+      }
+    },
+    {
+      "check": "network.container_link",
+      "status": "PASS",
+      "message": "container eth0 UP, MTU 1500; in the interval 949 packets in, 884 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)",
+      "data": {
+        "rx_packets": 949,
+        "tx_packets": 884,
+        "rx_errors": 0,
+        "tx_errors": 0,
+        "rx_dropped": 0,
+        "tx_dropped": 0,
+        "state": "UP",
+        "mtu": 1500,
+        "master": null
+      }
+    },
+    {
+      "check": "network.qdisc",
+      "status": "WARN",
+      "message": "vethb503361d: qdisc netem 8005: root refcnt 21 limit 1000 delay 40ms; in the interval 949 packets sent, 0 dropped by the qdisc",
+      "data": {
+        "config": "qdisc netem 8005: root refcnt 21 limit 1000 delay 40ms",
+        "kind": "netem",
+        "packets": 949,
+        "drops": 0
+      }
+    },
+    {
+      "check": "network.tcp_retrans",
+      "status": "PASS",
+      "message": "TCP retransmits in the interval: host namespace net:[4026531833] +0, container namespace net:[4026532932] +0 (whole-namespace counters, evidence only)",
+      "data": {
+        "host": 0,
+        "container": 0,
+        "host_netns": "net:[4026531833]",
+        "container_netns": "net:[4026532932]"
+      }
+    },
+    {
+      "check": "network.http",
+      "status": "PASS",
+      "message": "http://10.123.0.10:8080/healthz answered 200 in 82.5 ms",
+      "data": null
+    },
+    {
+      "check": "app.load",
+      "status": "PASS",
+      "message": "441 requests (sample count) from 1 client(s) in 20 s: 0 errors, 22.1 req/s, p50 45.3 ms, p99 46.4 ms, max 86.3 ms",
+      "data": {
+        "url": "http://10.123.0.10:8080/work",
+        "clients": 1,
+        "duration_s": 20.0,
+        "requests": 441,
+        "errors": 0,
+        "rps": 22.1,
+        "p50_ms": 45.29,
+        "p90_ms": 45.83,
+        "p99_ms": 46.37,
+        "max_ms": 86.3,
+        "server_cpu_p50_ms": 3.87
+      }
+    },
+    {
+      "check": "drift.kernel",
+      "status": "PASS",
+      "message": "kernel: 7.0.0-1019, same as the baseline",
+      "data": null
+    },
+    {
+      "check": "drift.cgroup",
+      "status": "PASS",
+      "message": "cgroup: v2, same as the baseline",
+      "data": null
+    },
+    {
+      "check": "drift.cpu_limit",
+      "status": "PASS",
+      "message": "cpu_limit: kernel 200000 100000 (Incus 200ms/100ms), same as the baseline",
+      "data": null
+    },
+    {
+      "check": "drift.cpuset",
+      "status": "PASS",
+      "message": "cpuset: kernel 5-9 (Incus 5-9), same as the baseline",
+      "data": null
+    },
+    {
+      "check": "drift.memory_limit",
+      "status": "PASS",
+      "message": "memory_limit: kernel 1073741824 (Incus 1GiB), same as the baseline",
+      "data": null
+    }
+  ],
+  "samples": {
+    "start": {
+      "cpu.stat": {
+        "usage_usec": 79302840,
+        "user_usec": 78013655,
+        "system_usec": 1289185,
+        "nice_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nr_periods": 1023,
+        "nr_throttled": 201,
+        "throttled_usec": 8193520,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "memory.events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "host_link": {
+        "state": "UP",
+        "mtu": 1500,
+        "master": "labbr0",
+        "rx_packets": 39595,
+        "tx_packets": 39550,
+        "rx_errors": 0,
+        "tx_errors": 0,
+        "rx_dropped": 0,
+        "tx_dropped": 0
+      },
+      "container_link": {
+        "state": "UP",
+        "mtu": 1500,
+        "master": null,
+        "rx_packets": 39550,
+        "tx_packets": 39595,
+        "rx_errors": 0,
+        "tx_errors": 0,
+        "rx_dropped": 0,
+        "tx_dropped": 0
+      },
+      "qdisc": {
+        "config": "qdisc netem 8005: root refcnt 21 limit 1000 delay 40ms",
+        "kind": "netem",
+        "packets": 0,
+        "drops": 0
+      },
+      "host_retrans": 15829,
+      "container_retrans": 0
+    },
+    "end": {
+      "cpu.stat": {
+        "usage_usec": 81143603,
+        "user_usec": 79810485,
+        "system_usec": 1333118,
+        "nice_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nr_periods": 1223,
+        "nr_throttled": 201,
+        "throttled_usec": 8193520,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "memory.events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "host_link": {
+        "state": "UP",
+        "mtu": 1500,
+        "master": "labbr0",
+        "rx_packets": 40479,
+        "tx_packets": 40499,
+        "rx_errors": 0,
+        "tx_errors": 0,
+        "rx_dropped": 0,
+        "tx_dropped": 0
+      },
+      "container_link": {
+        "state": "UP",
+        "mtu": 1500,
+        "master": null,
+        "rx_packets": 40499,
+        "tx_packets": 40479,
+        "rx_errors": 0,
+        "tx_errors": 0,
+        "rx_dropped": 0,
+        "tx_dropped": 0
+      },
+      "qdisc": {
+        "config": "qdisc netem 8005: root refcnt 21 limit 1000 delay 40ms",
+        "kind": "netem",
+        "packets": 949,
+        "drops": 0
+      },
+      "host_retrans": 15829,
+      "container_retrans": 0
+    }
+  }
+}

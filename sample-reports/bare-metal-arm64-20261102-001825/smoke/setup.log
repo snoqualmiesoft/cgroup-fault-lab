@@ -1,0 +1,8 @@
+[00:18:28] 1/5 Install packages (only the missing ones, so a second setup works offline)
+[00:18:28] 2/5 Incus storage (no default network: the lab uses its own bridge)
+[00:18:28] 3/5 Lab bridge labbr0 (10.123.0.1/24, NAT, no IPv6)
+[00:18:28]   net.ipv4.ip_forward before setup: 1, now: 1
+[00:18:28] 4/5 Fresh container lab: CPU 200ms/100ms, memory 1GiB, CPUs 5-9, IP 10.123.0.10
+Remapping container filesystem                                                                                             [00:18:31] 5/5 Start the app in the container
+[00:18:31]   python3 is in the image
+[00:18:33] Ready: app at http://10.123.0.10:8080, reachable from the host. Next: make baseline

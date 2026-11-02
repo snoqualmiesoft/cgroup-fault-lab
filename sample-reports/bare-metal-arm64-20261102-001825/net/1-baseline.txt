@@ -1,0 +1,22 @@
+HEALTHY (exit 0): all 20 checks passed
+Container lab: 20 s sample with 1 client(s), took 20.08 s of a 40 s limit
+  PASS     host.os                 Ubuntu 24.04.5 LTS, kernel 7.0.0-1019
+  PASS     host.cgroup             cgroup v2 with the cpu, cpuset and memory controllers
+  PASS     host.cpu                20 CPUs, load average 0.51 0.22 0.12 (1, 5, 15 min)
+  PASS     host.memory             72247 MiB available of 124608 MiB (58%)
+  PASS     host.disk               root filesystem 6% used, 3356.2 GiB free
+  PASS     host.kernel_log         last 10 min: 0 kernel messages at warning level or worse, 0 look like problems (oom, hung task, lockup, call trace, watchdog, I/O error)
+  PASS     container.state         lab running, first process PID 1414988, address 10.123.0.10, host-side link vethb503361d
+  PASS     container.cpu           cpu.max 200000 100000 (Incus allowance 200ms/100ms), cpuset 5-9 (Incus limits.cpu 5-9); 0 of 200 periods throttled (0%), 0 ms waiting
+  PASS     container.memory        memory.max 1024 MiB (Incus limits.memory 1GiB), memory.current 39 MiB (4%), 0 OOM kills in the interval
+  PASS     network.host_link       host side vethb503361d UP, MTU 1500, on bridge labbr0; in the interval 8561 packets in, 8628 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.container_link  container eth0 UP, MTU 1500; in the interval 8628 packets in, 8561 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.qdisc           vethb503361d: qdisc noqueue 0: root refcnt 2 (the default: no queue, so no qdisc counters)
+  PASS     network.tcp_retrans     TCP retransmits in the interval: host namespace net:[4026531833] +0, container namespace net:[4026532932] +0 (whole-namespace counters, evidence only)
+  PASS     network.http            http://10.123.0.10:8080/healthz answered 200 in 1.5 ms
+  PASS     app.load                4279 requests (sample count) from 1 client(s) in 20 s: 0 errors, 213.9 req/s, p50 4.6 ms, p99 5.3 ms, max 5.7 ms
+  PASS     drift.kernel            kernel: 7.0.0-1019, same as the baseline
+  PASS     drift.cgroup            cgroup: v2, same as the baseline
+  PASS     drift.cpu_limit         cpu_limit: kernel 200000 100000 (Incus 200ms/100ms), same as the baseline
+  PASS     drift.cpuset            cpuset: kernel 5-9 (Incus 5-9), same as the baseline
+  PASS     drift.memory_limit      memory_limit: kernel 1073741824 (Incus 1GiB), same as the baseline
