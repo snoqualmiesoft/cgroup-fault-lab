@@ -1,0 +1,329 @@
+{
+  "status": "HEALTHY",
+  "exit_code": 0,
+  "reason": "all 20 checks passed",
+  "time": "2026-11-02 10:16:26 +0000",
+  "container": "lab",
+  "load_settings": {
+    "url": "http://10.123.0.10:8080/work",
+    "clients": 1,
+    "duration_s": 20.0
+  },
+  "interval_s": 20.0,
+  "timeout_s": 40.0,
+  "runtime_s": 20.12,
+  "checks": [
+    {
+      "check": "host.os",
+      "status": "PASS",
+      "message": "Ubuntu 24.04.5 LTS, kernel 7.0.0-1017-azure",
+      "data": null
+    },
+    {
+      "check": "host.cgroup",
+      "status": "PASS",
+      "message": "cgroup v2 with the cpu, cpuset and memory controllers",
+      "data": null
+    },
+    {
+      "check": "host.cpu",
+      "status": "PASS",
+      "message": "4 CPUs, load average 1.06 0.61 0.26 (1, 5, 15 min)",
+      "data": {
+        "cpus": 4,
+        "load1": 1.05859375
+      }
+    },
+    {
+      "check": "host.memory",
+      "status": "PASS",
+      "message": "14945 MiB available of 15941 MiB (94%)",
+      "data": null
+    },
+    {
+      "check": "host.disk",
+      "status": "PASS",
+      "message": "root filesystem 27% used, 105.4 GiB free",
+      "data": null
+    },
+    {
+      "check": "host.kernel_log",
+      "status": "PASS",
+      "message": "last 10 min: 36 kernel messages at warning level or worse, 0 look like problems (oom, hung task, lockup, call trace, watchdog, I/O error)",
+      "data": {
+        "warnings": 36
+      }
+    },
+    {
+      "check": "container.state",
+      "status": "PASS",
+      "message": "lab running, first process PID 4520, address 10.123.0.10, host-side link veth05b65be8",
+      "data": {
+        "status": "Running",
+        "pid": 4520,
+        "ip": "10.123.0.10",
+        "veth": "veth05b65be8"
+      }
+    },
+    {
+      "check": "container.cpu",
+      "status": "PASS",
+      "message": "cpu.max 200000 100000 (Incus allowance 200ms/100ms), cpuset 0-3 (Incus limits.cpu not set); 0 of 200 periods throttled (0%), 0 ms waiting",
+      "data": {
+        "cpu_max": "200000 100000",
+        "cpuset": "0-3",
+        "incus_allowance": "200ms/100ms",
+        "incus_cpus": "",
+        "periods": 200,
+        "throttled": 0,
+        "throttled_ms": 0.0,
+        "cpu_stat_start": {
+          "usage_usec": 132165183,
+          "user_usec": 130158695,
+          "system_usec": 2006488,
+          "nice_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nr_periods": 1647,
+          "nr_throttled": 207,
+          "throttled_usec": 10034258,
+          "nr_bursts": 0,
+          "burst_usec": 0
+        },
+        "cpu_stat_end": {
+          "usage_usec": 151694556,
+          "user_usec": 149555013,
+          "system_usec": 2139543,
+          "nice_usec": 0,
+          "core_sched.force_idle_usec": 0,
+          "nr_periods": 1847,
+          "nr_throttled": 207,
+          "throttled_usec": 10034258,
+          "nr_bursts": 0,
+          "burst_usec": 0
+        }
+      }
+    },
+    {
+      "check": "container.memory",
+      "status": "PASS",
+      "message": "memory.max 1024 MiB (Incus limits.memory 1GiB), memory.current 34 MiB (3%), 0 OOM kills in the interval",
+      "data": null
+    },
+    {
+      "check": "network.host_link",
+      "status": "PASS",
+      "message": "host side veth05b65be8 UP, MTU 1500, on bridge labbr0; in the interval 5401 packets in, 5403 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)",
+      "data": {
+        "rx_packets": 5401,
+        "tx_packets": 5403,
+        "rx_errors": 0,
+        "tx_errors": 0,
+        "rx_dropped": 0,
+        "tx_dropped": 0,
+        "state": "UP",
+        "mtu": 1500,
+        "master": "labbr0"
+      }
+    },
+    {
+      "check": "network.container_link",
+      "status": "PASS",
+      "message": "container eth0 UP, MTU 1500; in the interval 5403 packets in, 5401 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)",
+      "data": {
+        "rx_packets": 5403,
+        "tx_packets": 5401,
+        "rx_errors": 0,
+        "tx_errors": 0,
+        "rx_dropped": 0,
+        "tx_dropped": 0,
+        "state": "UP",
+        "mtu": 1500,
+        "master": null
+      }
+    },
+    {
+      "check": "network.qdisc",
+      "status": "PASS",
+      "message": "veth05b65be8: qdisc noqueue 0: root refcnt 2 (the default: no queue, so no qdisc counters)",
+      "data": {
+        "config": "qdisc noqueue 0: root refcnt 2",
+        "kind": "noqueue",
+        "packets": 0,
+        "drops": 0
+      }
+    },
+    {
+      "check": "network.tcp_retrans",
+      "status": "PASS",
+      "message": "TCP retransmits in the interval: host namespace net:[4026531833] +0, container namespace net:[4026532310] +0 (whole-namespace counters, evidence only)",
+      "data": {
+        "host": 0,
+        "container": 0,
+        "host_netns": "net:[4026531833]",
+        "container_netns": "net:[4026532310]"
+      }
+    },
+    {
+      "check": "network.http",
+      "status": "PASS",
+      "message": "http://10.123.0.10:8080/healthz answered 200 in 1.1 ms",
+      "data": null
+    },
+    {
+      "check": "app.load",
+      "status": "PASS",
+      "message": "2699 requests (sample count) from 1 client(s) in 20 s: 0 errors, 134.9 req/s, p50 7.4 ms, p99 7.5 ms, max 9.4 ms",
+      "data": {
+        "url": "http://10.123.0.10:8080/work",
+        "clients": 1,
+        "duration_s": 20.0,
+        "requests": 2699,
+        "errors": 0,
+        "rps": 134.9,
+        "p50_ms": 7.39,
+        "p90_ms": 7.46,
+        "p99_ms": 7.54,
+        "max_ms": 9.4,
+        "server_cpu_p50_ms": 7.05
+      }
+    },
+    {
+      "check": "drift.kernel",
+      "status": "PASS",
+      "message": "kernel: 7.0.0-1017-azure, same as the baseline",
+      "data": null
+    },
+    {
+      "check": "drift.cgroup",
+      "status": "PASS",
+      "message": "cgroup: v2, same as the baseline",
+      "data": null
+    },
+    {
+      "check": "drift.cpu_limit",
+      "status": "PASS",
+      "message": "cpu_limit: kernel 200000 100000 (Incus 200ms/100ms), same as the baseline",
+      "data": null
+    },
+    {
+      "check": "drift.cpuset",
+      "status": "PASS",
+      "message": "cpuset: kernel 0-3 (Incus not set), same as the baseline",
+      "data": null
+    },
+    {
+      "check": "drift.memory_limit",
+      "status": "PASS",
+      "message": "memory_limit: kernel 1073741824 (Incus 1GiB), same as the baseline",
+      "data": null
+    }
+  ],
+  "samples": {
+    "start": {
+      "cpu.stat": {
+        "usage_usec": 132165183,
+        "user_usec": 130158695,
+        "system_usec": 2006488,
+        "nice_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nr_periods": 1647,
+        "nr_throttled": 207,
+        "throttled_usec": 10034258,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "memory.events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "host_link": {
+        "state": "UP",
+        "mtu": 1500,
+        "master": "labbr0",
+        "rx_packets": 37098,
+        "tx_packets": 36720,
+        "rx_errors": 0,
+        "tx_errors": 0,
+        "rx_dropped": 0,
+        "tx_dropped": 0
+      },
+      "container_link": {
+        "state": "UP",
+        "mtu": 1500,
+        "master": null,
+        "rx_packets": 36720,
+        "tx_packets": 37098,
+        "rx_errors": 0,
+        "tx_errors": 0,
+        "rx_dropped": 0,
+        "tx_dropped": 0
+      },
+      "qdisc": {
+        "config": "qdisc noqueue 0: root refcnt 2",
+        "kind": "noqueue",
+        "packets": 0,
+        "drops": 0
+      },
+      "host_retrans": 40,
+      "container_retrans": 1
+    },
+    "end": {
+      "cpu.stat": {
+        "usage_usec": 151694556,
+        "user_usec": 149555013,
+        "system_usec": 2139543,
+        "nice_usec": 0,
+        "core_sched.force_idle_usec": 0,
+        "nr_periods": 1847,
+        "nr_throttled": 207,
+        "throttled_usec": 10034258,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "memory.events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "host_link": {
+        "state": "UP",
+        "mtu": 1500,
+        "master": "labbr0",
+        "rx_packets": 42499,
+        "tx_packets": 42123,
+        "rx_errors": 0,
+        "tx_errors": 0,
+        "rx_dropped": 0,
+        "tx_dropped": 0
+      },
+      "container_link": {
+        "state": "UP",
+        "mtu": 1500,
+        "master": null,
+        "rx_packets": 42123,
+        "tx_packets": 42499,
+        "rx_errors": 0,
+        "tx_errors": 0,
+        "rx_dropped": 0,
+        "tx_dropped": 0
+      },
+      "qdisc": {
+        "config": "qdisc noqueue 0: root refcnt 2",
+        "kind": "noqueue",
+        "packets": 0,
+        "drops": 0
+      },
+      "host_retrans": 40,
+      "container_retrans": 1
+    }
+  }
+}

@@ -1,0 +1,22 @@
+HEALTHY (exit 0): all 20 checks passed
+Container lab: 20 s sample with 1 client(s), took 20.12 s of a 40 s limit
+  PASS     host.os                 Ubuntu 24.04.5 LTS, kernel 7.0.0-1017-azure
+  PASS     host.cgroup             cgroup v2 with the cpu, cpuset and memory controllers
+  PASS     host.cpu                4 CPUs, load average 1.06 0.61 0.26 (1, 5, 15 min)
+  PASS     host.memory             14945 MiB available of 15941 MiB (94%)
+  PASS     host.disk               root filesystem 27% used, 105.4 GiB free
+  PASS     host.kernel_log         last 10 min: 36 kernel messages at warning level or worse, 0 look like problems (oom, hung task, lockup, call trace, watchdog, I/O error)
+  PASS     container.state         lab running, first process PID 4520, address 10.123.0.10, host-side link veth05b65be8
+  PASS     container.cpu           cpu.max 200000 100000 (Incus allowance 200ms/100ms), cpuset 0-3 (Incus limits.cpu not set); 0 of 200 periods throttled (0%), 0 ms waiting
+  PASS     container.memory        memory.max 1024 MiB (Incus limits.memory 1GiB), memory.current 34 MiB (3%), 0 OOM kills in the interval
+  PASS     network.host_link       host side veth05b65be8 UP, MTU 1500, on bridge labbr0; in the interval 5401 packets in, 5403 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.container_link  container eth0 UP, MTU 1500; in the interval 5403 packets in, 5401 out, errors 0/0, drops 0/0 (in/out); speed not meaningful (virtual veth link)
+  PASS     network.qdisc           veth05b65be8: qdisc noqueue 0: root refcnt 2 (the default: no queue, so no qdisc counters)
+  PASS     network.tcp_retrans     TCP retransmits in the interval: host namespace net:[4026531833] +0, container namespace net:[4026532310] +0 (whole-namespace counters, evidence only)
+  PASS     network.http            http://10.123.0.10:8080/healthz answered 200 in 1.1 ms
+  PASS     app.load                2699 requests (sample count) from 1 client(s) in 20 s: 0 errors, 134.9 req/s, p50 7.4 ms, p99 7.5 ms, max 9.4 ms
+  PASS     drift.kernel            kernel: 7.0.0-1017-azure, same as the baseline
+  PASS     drift.cgroup            cgroup: v2, same as the baseline
+  PASS     drift.cpu_limit         cpu_limit: kernel 200000 100000 (Incus 200ms/100ms), same as the baseline
+  PASS     drift.cpuset            cpuset: kernel 0-3 (Incus not set), same as the baseline
+  PASS     drift.memory_limit      memory_limit: kernel 1073741824 (Incus 1GiB), same as the baseline

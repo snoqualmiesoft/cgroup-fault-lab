@@ -1,0 +1,18 @@
+{
+  "kernel": "7.0.0-1017-azure",
+  "cgroup": "v2",
+  "cpu_limit": {
+    "incus": "200ms/100ms",
+    "kernel": "200000 100000"
+  },
+  "cpuset": {
+    "incus": "",
+    "kernel": "0-3"
+  },
+  "memory_limit": {
+    "incus": "1GiB",
+    "kernel": "1073741824"
+  },
+  "recorded": "2026-11-02 10:13:23 +0000",
+  "container": "lab"
+}

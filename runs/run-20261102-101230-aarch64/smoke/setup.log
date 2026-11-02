@@ -1,0 +1,20 @@
+[10:12:33] 1/5 Install packages (only the missing ones, so a second setup works offline)
+[10:12:33]   installing: incus
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+[10:12:56] 2/5 Incus storage (no default network: the lab uses its own bridge)
+[10:12:56] 3/5 Lab bridge labbr0 (10.123.0.1/24, NAT, no IPv6)
+Network labbr0 created
+[10:12:57]   net.ipv4.ip_forward before setup: 1, now: 1
+[10:12:57] 4/5 Fresh container lab: CPU 200ms/100ms, memory 1GiB, CPUs any, IP 10.123.0.10
+Remapping container filesystem                                                                                             [10:13:07] 5/5 Start the app in the container
+[10:13:09]   python3 is in the image
+[10:13:10] Ready: app at http://10.123.0.10:8080, reachable from the host. Next: make baseline
